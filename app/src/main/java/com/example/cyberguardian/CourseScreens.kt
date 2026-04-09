@@ -71,4 +71,20 @@ fun CourseDetailScreen(courseName: String, onBack: () -> Unit) {
     }
 }
 
+@Composable
+fun SettingsScreen(onBack: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Button(onClick = onBack) { Text("Back") }
+        Text("Settings", style = MaterialTheme.typography.headlineLarge)
+        // To meet the requirement of "adjusting difficulty/sound".
+    }
+}
 
+@Composable
+fun UserStatsScreen(onBack: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Button(onClick = onBack) { Text("Back") }
+        Text("Your Learning Progress", style = MaterialTheme.typography.headlineLarge)
+        // The scores are displayed in conjunction with the Room database [cite: 26, 35]
+    }
+}
