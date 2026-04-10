@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CyberGuardian"
+rootProject.name = "EduBound"
 include(":app")
