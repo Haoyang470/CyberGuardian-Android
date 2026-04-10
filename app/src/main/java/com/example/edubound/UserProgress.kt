@@ -1,4 +1,4 @@
-package com.example.cyberguardian
+package com.example.edubound
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

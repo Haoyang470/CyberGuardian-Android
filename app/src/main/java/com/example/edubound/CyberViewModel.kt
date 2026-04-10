@@ -1,4 +1,4 @@
-package com.example.cyberguardian
+package com.example.edubound
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

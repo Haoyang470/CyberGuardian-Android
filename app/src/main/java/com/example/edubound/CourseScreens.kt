@@ -1,4 +1,4 @@
-package com.example.cyberguardian
+package com.example.edubound
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

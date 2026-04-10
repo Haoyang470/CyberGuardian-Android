@@ -1,4 +1,4 @@
-package com.example.cyberguardian
+package com.example.edubound
 
 import org.junit.Test
 

@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.cyberguardian"
+    namespace = "com.example.edubound"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.cyberguardian"
+        applicationId = "com.example.edubound"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -43,32 +43,31 @@ android {
 }
 
 dependencies {
-    // 基础核心库 - 降级到兼容 8.5.0 插件的版本
+    // Basic core library
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
 
-    // Activity 和 Compose 核心 - 降级到 1.9.0 避免 8.9.1 插件要求
+    // Activity and Compose core
     implementation("androidx.activity:activity-compose:1.9.0")
 
-    // Compose UI 基础组件
+    // Compose UI
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
-    // 导航和 ViewModel (CyberGuardian 项目必需)
+    // Navigation and ViewModel
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
 
-    // Room 数据库 (如果你的项目用到了本地存储)
+    // Room
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    // 注意：如果你用了 KSP 插件，这里的版本也要对齐
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    // 单元测试相关
+    // Unit testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
