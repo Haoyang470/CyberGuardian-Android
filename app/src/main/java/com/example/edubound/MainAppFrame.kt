@@ -30,9 +30,12 @@ fun MainAppFrame() {
                     selected = currentDestination?.hierarchy?.any { it.route == "landing" } == true,
                     onClick = {
                         navController.navigate("landing") {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                inclusive = true
+                                saveState = false
+                            }
                             launchSingleTop = true
-                            restoreState = true
+                            restoreState = false
                         }
                     }
                 )
@@ -41,9 +44,9 @@ fun MainAppFrame() {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) },
                     label = { Text("Learn") },
-                    selected = currentDestination?.hierarchy?.any { it.route?.startsWith("activity") == true } == true,
+                    selected = currentDestination?.hierarchy?.any { it.route == "learn_main" } == true,
                     onClick = {
-                        navController.navigate("activity/Math") {
+                        navController.navigate("learn_main") {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -81,16 +84,26 @@ fun MainAppFrame() {
             }
         }
     ) { innerPadding ->
+        // Core navigation configuration
         NavHost(
             navController = navController,
             startDestination = "landing",
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("landing") {
-                LandingPage(onStart = { subject ->
-                    navController.navigate("activity/$subject")
-                })
+                LandingPage(
+                    onStart = { subject ->
+                        // Processing course card clicks
+                        navController.navigate("activity/$subject")
+                    },
+                    onNavigate = { destination ->
+                        // Handling clicks in the "Quick Access" window
+                        navController.navigate(destination)
+                    }
+                )
             }
+
+            // Learn Page
             composable("activity/{subjectName}") { backStackEntry ->
                 val subject = backStackEntry.arguments?.getString("subjectName") ?: "Math"
                 ActivityScreen(
@@ -98,8 +111,23 @@ fun MainAppFrame() {
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable("stats") { StatisticsScreen() }
-            composable("settings") { SettingsScreen() }
+
+            // Learn main Page
+            composable("learn_main") {
+                LearnScreen(onNavigateToSubject = { name ->
+                    navController.navigate("activity/$name")
+                })
+            }
+
+            // Progress Page
+            composable("stats") {
+                StatisticsScreen()
+            }
+
+            // Settings Page
+            composable("settings") {
+                SettingsScreen()
+            }
         }
     }
 }

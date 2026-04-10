@@ -1,43 +1,122 @@
 package com.example.edubound
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun StatisticsScreen() {
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text("My Growth", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+    ) {
+        Text(
+            text = "My Progress",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF7D5822)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- 1. 分数总览卡片 ---
         Card(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
         ) {
-            Column(Modifier.padding(20.dp), Arrangement.Center) {
-                Text("Total Credits")
-                Text("$globalScore", fontSize = 42.sp, fontWeight = FontWeight.ExtraBold)
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Total Points", fontSize = 14.sp, color = Color.Gray)
+
+                Text(
+                    text = "$globalScore",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF7D5822)
+                )
+
+                LinearProgressIndicator(
+                    progress = { 0.65f },
+                    modifier = Modifier.fillMaxWidth().height(8.dp).padding(vertical = 8.dp),
+                    color = Color(0xFF7D5822),
+                    trackColor = Color.White
+                )
+                Text("650 points to next level", fontSize = 12.sp, color = Color.Gray)
             }
         }
 
-        Text("Medals Unlocked", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            MedalItem("📐", "Math", hasMathMedal)
-            MedalItem("🧪", "Chem", false)
-            MedalItem("🍎", "Phys", false)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Learning Metrics
+        Text("Learning Metrics", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            MetricCard("Courses", "$coursesCompleted", Modifier.weight(1f))
+            MetricCard("Streak", "$dailyStreak Days", Modifier.weight(1f))
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Achievements
+        Text("Achievements", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            MedalItem("📐", "Math Expert", hasMathMedal)
+            MedalItem("⚛️", "Physics", hasPhysicsMedal)
+            MedalItem("🧪", "Chemistry", hasChemistryMedal)
+        }
+    }
+}
+
+@Composable
+fun MetricCard(title: String, value: String, modifier: Modifier) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, fontSize = 12.sp, color = Color.Gray)
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun MedalItem(icon: String, name: String, isUnlocked: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            shape = CircleShape,
+            color = if (isUnlocked) Color(0xFFFFD700) else Color(0xFFF0F0F0),
+            modifier = Modifier.size(64.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = icon,
+                    fontSize = 30.sp,
+                    modifier = Modifier.alpha(if (isUnlocked) 1f else 0.3f)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(name, fontSize = 12.sp, color = if (isUnlocked) Color.Black else Color.Gray)
     }
 }

@@ -2,74 +2,150 @@ package com.example.edubound
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityScreen(subjectName: String, onBack: () -> Unit) {
     val context = LocalContext.current
 
-    // Make sure clicking on different subjects displays different questions.
-    val isMath = subjectName.equals("Math", ignoreCase = true)
-    val isPhysics = subjectName.equals("Physics", ignoreCase = true)
-    val isChemistry = subjectName.equals("Chemistry", ignoreCase = true)
-
-    val question = when {
-        isMath -> "If the two legs of a right triangle are 3 and 4, what is the hypotenuse?"
-        isPhysics -> "What is Newton's First Law also known as?"
-        isChemistry -> "Which metal element is most abundant in the Earth's crust?"
-        else -> "Ready to start today's challenge?"
-    }
-
-    val options = when {
-        isMath -> listOf("5", "6", "7")
-        isPhysics -> listOf("Inertia Law", "Acceleration Law", "Gravity")
-        isChemistry -> listOf("Aluminum (Al)", "Iron (Fe)", "Oxygen (O)")
-        else -> listOf("Start", "Skip", "View Notes")
-    }
-
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        IconButton(onClick = onBack) {
-            // Use AutoMirrored to fix icon warnings
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    val (question, options, correctAnswer) = when (subjectName) {
+        "Math" -> if (gameDifficulty == "Normal") {
+            Triple("What is 15 * 4?", listOf("50", "60", "70", "80"), "60")
+        } else {
+            Triple("Solve for x: 2x + 15 = 45", listOf("10", "15", "20", "25"), "15")
         }
-        Text(subjectName, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5EEE6))
-        ) {
-            Column(Modifier.padding(24.dp)) {
-                Text("Daily Challenge", color = Color(0xFF7D5822), fontWeight = FontWeight.Bold)
-                Text(question, fontSize = 18.sp, modifier = Modifier.padding(vertical = 12.dp))
+        "Physics" -> if (gameDifficulty == "Normal") {
+            Triple("Unit of Force?", listOf("Joule", "Watt", "Newton", "Pascal"), "Newton")
+        } else {
+            Triple("Force = Mass × ?", listOf("Velocity", "Time", "Acceleration", "Density"), "Acceleration")
+        }
 
-                options.forEach { answer ->
-                    Button(
-                        onClick = {
-                            val isCorrect = answer == "5" || answer == "Inertia Law" || answer == "Aluminum (Al)"
-                            if (isCorrect) {
-                                globalScore += 50
-                                Toast.makeText(context, "Correct! +50 Credits", Toast.LENGTH_SHORT).show()
-                                onBack()
-                            } else {
-                                Toast.makeText(context, "Try again!", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    ) {
-                        Text(answer)
+        "Chemistry" -> if (gameDifficulty == "Normal") {
+            Triple("Symbol for Gold?", listOf("Ag", "Au", "Fe", "Cu"), "Au")
+        } else {
+            Triple("What is the atomic number of Oxygen?", listOf("6", "7", "8", "9"), "8")
+        }
+
+        else -> Triple("Ready?", listOf("Yes", "No"), "Yes")
+    }
+
+    // Status management: Selected answer
+    var selectedOption by remember { mutableStateOf("") }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("$subjectName Quiz", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(24.dp)
+        ) {
+            // Question text
+            Text(
+                text = question,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 30.sp,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            // Option list
+            Column(
+                modifier = Modifier
+                    .selectableGroup()
+                    .weight(1f)
+            ) {
+                options.forEach { text ->
+                    val isSelected = (selectedOption == text)
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .selectable(
+                                selected = isSelected,
+                                onClick = { selectedOption = text },
+                                role = Role.RadioButton
+                            ),
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
+                        border = if (isSelected) ButtonDefaults.outlinedButtonBorder else null
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = null // 已经在 Surface 的 selectable 中处理了
+                            )
+                            Text(
+                                text = text,
+                                modifier = Modifier.padding(start = 16.dp),
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Submit button
+            Button(
+                onClick = {
+                    if (selectedOption == correctAnswer) {
+                        // Bonus Points Logic
+                        globalScore += 100
+                        coursesCompleted += 1
+
+                        // Light up the corresponding badge
+                        when (subjectName) {
+                            "Math" -> hasMathMedal = true
+                            "Physics" -> hasPhysicsMedal = true
+                            "Chemical" -> hasChemistryMedal = true
+                        }
+
+                        // Persistently save to phone storage
+                        MainActivity.saveProgress(context)
+
+                        Toast.makeText(context, "Correct! +100 Points", Toast.LENGTH_SHORT).show()
+                        onBack() // Return to the course list after answering correctly.
+                    } else {
+                        Toast.makeText(context, "Incorrect, please try again!", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                enabled = selectedOption.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("Submit Answer", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
